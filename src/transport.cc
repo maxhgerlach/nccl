@@ -151,6 +151,13 @@ ncclResult_t ncclTransportP2pSetup(struct ncclComm* comm, struct ncclTopoGraph* 
                 conn->connected = 1;
                 /* comm->channels[c].devPeers[sendPeer]->send[connIndex] is a device memory access. */
                 CUDACHECKGOTO(cudaMemcpyAsync(&addr, &comm->channels[c].devPeers[sendPeer], sizeof(struct ncclDevChannelPeer*), cudaMemcpyDeviceToHost, comm->sharedRes->hostStream.cudaStream), ret, fail);
+                WARN("Inside ncclTransportP2pSetup() i=%d c=%d connIndex=%d. Argument: addr=%p", i, c, connIndex, (void*)addr);
+                WARN("Inside ncclTransportP2pSetup() i=%d c=%d connIndex=%d. Argument: addr->send=%p", i, c, connIndex, (void*)addr->send);
+                WARN("Inside ncclTransportP2pSetup() i=%d c=%d connIndex=%d. Argument: &addr->send[connIndex]=%p", i, c, connIndex, (void*)&addr->send[connIndex]);
+                WARN("Inside ncclTransportP2pSetup() i=%d c=%d connIndex=%d. Argument: conn=%p", i, c, connIndex, (void*)conn);
+                WARN("Inside ncclTransportP2pSetup() i=%d c=%d connIndex=%d. Argument: &conn->conn=%p", i, c, connIndex, (void*)&conn->conn);
+                WARN("Inside ncclTransportP2pSetup() i=%d c=%d connIndex=%d. Argument: comm->sharedRes->hostStream.cudaStream=%p", i, c, connIndex, (void*)comm->sharedRes->hostStream.cudaStream);
+                // error line:
                 CUDACHECKGOTO(cudaMemcpyAsync(&addr->send[connIndex], &conn->conn, sizeof(struct ncclConnInfo), cudaMemcpyHostToDevice, comm->sharedRes->hostStream.cudaStream), ret, fail);
               } else if (ret == ncclInProgress) {
                 allChannelsConnected = false;
