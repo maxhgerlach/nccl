@@ -155,7 +155,7 @@ ncclResult_t ncclTransportP2pSetup(struct ncclComm* comm, struct ncclTopoGraph* 
                 WARN("Inside ncclTransportP2pSetup()_a i=%d c=%d connIndex=%d. Argument: comm->channels[c].devPeers=%p", i, c, connIndex, (void*)comm->channels[c].devPeers);
                 WARN("Inside ncclTransportP2pSetup()_a i=%d c=%d connIndex=%d. Argument: &comm->channels[c].devPeers[sendPeer]=%p", i, c, connIndex, (void*)&comm->channels[c].devPeers[sendPeer]);
                 WARN("Inside ncclTransportP2pSetup()_a i=%d c=%d connIndex=%d. Argument: comm->sharedRes->hostStream.cudaStream=%p", i, c, connIndex, (void*)comm->sharedRes->hostStream.cudaStream);
-                CUDACHECKGOTO(cudaMemcpyAsync(&addr, &comm->channels[c].devPeers[sendPeer], sizeof(struct ncclDevChannelPeer*), cudaMemcpyDeviceToHost, comm->sharedRes->hostStream.cudaStream), ret, fail);
+                CUDACHECKGOTO(cudaMemcpy(&addr, &comm->channels[c].devPeers[sendPeer], sizeof(struct ncclDevChannelPeer*), cudaMemcpyDeviceToHost), ret, fail);
                 WARN("Inside ncclTransportP2pSetup()_b i=%d c=%d connIndex=%d. Argument: addr=%p", i, c, connIndex, (void*)addr);
                 WARN("Inside ncclTransportP2pSetup()_b i=%d c=%d connIndex=%d. Argument: addr->send=%p", i, c, connIndex, (void*)addr->send);
                 WARN("Inside ncclTransportP2pSetup()_b i=%d c=%d connIndex=%d. Argument: &addr->send[connIndex]=%p", i, c, connIndex, (void*)&addr->send[connIndex]);
@@ -182,7 +182,7 @@ ncclResult_t ncclTransportP2pSetup(struct ncclComm* comm, struct ncclTopoGraph* 
                 struct ncclDevChannelPeer* addr;
                 conn->connected = 1;
                 /* comm->channels[c].devPeers[recvPeer]->recv[connIndex] is a device memory access. */
-                CUDACHECKGOTO(cudaMemcpyAsync(&addr, &comm->channels[c].devPeers[recvPeer], sizeof(struct ncclDevChannelPeer*), cudaMemcpyDeviceToHost, comm->sharedRes->hostStream.cudaStream), ret, fail);
+                CUDACHECKGOTO(cudaMemcpy(&addr, &comm->channels[c].devPeers[recvPeer], sizeof(struct ncclDevChannelPeer*), cudaMemcpyDeviceToHost), ret, fail);
                 CUDACHECKGOTO(cudaMemcpyAsync(&addr->recv[connIndex], &conn->conn, sizeof(struct ncclConnInfo), cudaMemcpyHostToDevice, comm->sharedRes->hostStream.cudaStream), ret, fail);
               } else if (ret == ncclInProgress) {
                 allChannelsConnected = false;
